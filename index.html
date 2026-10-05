@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teacher's Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0908; --green-d:#2a2216; --green:#d9a441; --green-l:#f0c674; --white:#f4f7f5;
+  --muted:rgba(244,247,245,.68);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',system-ui,sans-serif; --mono:'JetBrains Mono',Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(1200px 700px at 20% 0%,var(--green-d),var(--black) 70%);
+  color:var(--white);font-family:var(--sans);overflow-x:hidden;
+}
+#bg{position:fixed;inset:0;z-index:0;opacity:.5;transition:opacity 1s;pointer-events:none}
+#confetti{position:fixed;inset:0;z-index:9;pointer-events:none}
+#floaters{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.floater{
+  position:absolute;bottom:-12%;color:var(--green-l);opacity:0;filter:grayscale(1) brightness(1.3);
+  animation:float linear infinite;font-family:var(--serif);white-space:nowrap;
+}
+@keyframes float{
+  0%{transform:translateY(0) rotate(0);opacity:0}
+  10%{opacity:.35} 90%{opacity:.25}
+  100%{transform:translateY(-120vh) rotate(var(--rot));opacity:0}
+}
+
+/* screens */
+.screen{position:fixed;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .8s,visibility .8s}
+.screen.active{opacity:1;visibility:visible}
+#result{align-items:flex-start}
+#result .card{margin:auto}
+
+/* boot */
+#boot{background:var(--black);z-index:5}
+#bootText{font-family:var(--mono);color:var(--green-l);font-size:clamp(.9rem,2.4vw,1.2rem);
+  line-height:2;white-space:pre-wrap;width:min(560px,100%)}
+#bootText .cursor{display:inline-block;width:.6em;height:1em;background:var(--green-l);
+  vertical-align:-.15em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* glass */
+.glass{
+  background:rgba(255,255,255,.05);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(240,198,116,.22);border-radius:20px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+.narrow{width:min(620px,100%);padding:clamp(24px,5vw,44px)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,5vw,2.6rem);margin-bottom:28px}
+label{display:block;color:var(--muted);margin-bottom:10px;font-size:.95rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input{
+  flex:1 1 240px;background:rgba(0,0,0,.45);border:1px solid rgba(244,247,245,.22);color:var(--white);
+  padding:15px 16px;border-radius:12px;font:500 1rem var(--sans);letter-spacing:.04em;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+input:focus{border-color:var(--green-l);box-shadow:0 0 0 3px rgba(240,198,116,.2)}
+button{
+  background:var(--green);color:#1a1406;border:0;border-radius:12px;padding:15px 24px;
+  font:700 .95rem var(--sans);letter-spacing:.06em;cursor:pointer;transition:transform .2s,background .2s;
+}
+button:hover{background:#ebb95a;transform:translateY(-2px)}
+button:focus-visible{outline:2px solid var(--white);outline-offset:3px}
+#error{color:#ff9b9b;min-height:1.4em;margin-top:10px;font-size:.9rem}
+.warn{margin:14px 0 14px;padding:12px 14px;border-left:3px solid var(--green-l);
+  background:rgba(240,198,116,.08);border-radius:0 10px 10px 0;font-weight:700}
+.examples{list-style:none;display:grid;gap:8px;color:var(--muted);font-size:.9rem}
+.examples li{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.examples .yes{margin-left:6px}
+
+/* result */
+.card{width:min(760px,100%);padding:clamp(28px,6vw,64px);text-align:center}
+.emblem{font-size:clamp(3rem,10vw,5rem);color:var(--green-l);line-height:1;margin-bottom:10px;
+  animation:bob 5s ease-in-out infinite;text-shadow:0 0 40px rgba(240,198,116,.45)}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.tag{color:var(--green-l);margin-bottom:12px;font-size:.95rem}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,6vw,3.4rem);line-height:1.15;margin-bottom:28px}
+.message{font-family:var(--serif);font-size:clamp(1.05rem,2.6vw,1.3rem);line-height:1.75;color:var(--white);
+  text-align:left;white-space:pre-line;min-height:12em;max-width:60ch;margin:0 auto}
+.message.typing::after{content:"▍";color:var(--green-l);animation:blink 1s steps(1) infinite}
+.closing{margin-top:28px;opacity:0;transform:translateY(12px);transition:opacity 1s,transform 1s}
+.closing.show{opacity:1;transform:none}
+.thanks{color:var(--muted);margin-bottom:10px}
+.happy{font-family:var(--serif);font-size:clamp(1.6rem,4vw,2.2rem);margin-bottom:26px}
+#againBtn{background:transparent;border:1px solid var(--green-l);color:var(--green-l)}
+#againBtn:hover{background:var(--green-l);color:var(--black)}
+
+/* subject backgrounds */
+[data-theme] #bg{opacity:.5}
+body[data-bg="grid"] #bg{background-image:linear-gradient(rgba(240,198,116,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(240,198,116,.12) 1px,transparent 1px);background-size:44px 44px}
+body[data-bg="dots"] #bg{background-image:radial-gradient(rgba(240,198,116,.22) 1.5px,transparent 1.6px);background-size:30px 30px}
+body[data-bg="scan"] #bg{background-image:repeating-linear-gradient(0deg,rgba(240,198,116,.08) 0 1px,transparent 1px 4px)}
+body[data-bg="ruled"] #bg{background-image:repeating-linear-gradient(0deg,rgba(244,247,245,.08) 0 1px,transparent 1px 38px)}
+body[data-bg="islamic"] #bg{background-image:repeating-linear-gradient(45deg,rgba(240,198,116,.12) 0 1px,transparent 1px 36px),repeating-linear-gradient(-45deg,rgba(240,198,116,.12) 0 1px,transparent 1px 36px)}
+body[data-bg="map"] #bg{background-image:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.7)),repeating-linear-gradient(90deg,rgba(240,198,116,.1) 0 1px,transparent 1px 80px),repeating-linear-gradient(0deg,rgba(240,198,116,.1) 0 1px,transparent 1px 80px)}
+body[data-theme="cs"] .message,body[data-theme="cs"] h2{font-family:var(--mono)}
+body[data-theme="cs"] .message{font-size:clamp(.95rem,2.3vw,1.1rem)}
+body[data-theme="urdu"] .tag,body[data-theme="urdu"] .emblem{font-family:'Noto Nastaliq Urdu',serif}
+
+@media (prefers-reduced-motion:reduce){
+  .floater,.emblem{animation:none}.floater{opacity:.2}
+  *{transition-duration:.01s!important}
+}
+
+</style>
+</head>
+<body data-theme="default">
+  <div id="bg"></div>
+  <div id="floaters" aria-hidden="true"></div>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <!-- 1. Boot screen -->
+  <section id="boot" class="screen active">
+    <pre id="bootText" aria-live="polite"></pre>
+  </section>
+
+  <!-- 2. Input screen -->
+  <section id="input" class="screen">
+    <div class="glass narrow">
+      <h1>Tell us about your teacher</h1>
+      <label for="teacherInput">Enter teacher's name and FULL subject name</label>
+      <div class="row">
+        <input id="teacherInput" type="text" placeholder="MISS HINA, BIOLOGY" autocomplete="off" spellcheck="false">
+        <button id="enterBtn" type="button">ENTER →</button>
+      </div>
+      <p id="error" role="alert"></p>
+      <p class="warn">Please enter the FULL subject name. Do not use short forms.</p>
+      <ul class="examples">
+        <li><span class="no">Not this:</span> MISS HINA, BIO <span class="yes">Write this:</span> MISS HINA, BIOLOGY</li>
+        <li><span class="no">Not this:</span> MISS SARA, CHEM <span class="yes">Write this:</span> MISS SARA, CHEMISTRY</li>
+        <li><span class="no">Not this:</span> MISS ALI, MATH <span class="yes">Write this:</span> MISS ALI, MATHEMATICS</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Personalised page -->
+  <section id="result" class="screen">
+    <article class="glass card">
+      <div id="emblem" class="emblem" aria-hidden="true"></div>
+      <p id="subjectTag" class="tag"></p>
+      <h2 id="greeting"></h2>
+      <p id="message" class="message"></p>
+      <div id="closing" class="closing">
+        <p class="thanks">Thank you for teaching, inspiring, and believing in us.</p>
+        <p class="happy">Happy Teacher's Day ❤️</p>
+        <button id="againBtn" type="button">← Create Another Teacher</button>
+      </div>
+    </article>
+  </section>
+
+  <script>
+(() => {
+  'use strict';
+
+  /* ---------- Subject data ---------- */
+  const SUBJECTS = [
+    { id:'cs', keys:['computer science'], label:'Computer Science', icon:'</>', bg:'scan',
+      glyphs:['</>','{}','01','10110','$_','()=>','if','&&','[ ]','1010','⌨','#!'],
+      msg:`Dear {name},
+
+Before your class, I thought computers were just big boxes that crash right before you press save. Then you showed us that every big, scary problem is only a bunch of small problems standing in a trench coat, and that all you have to do is take them apart one line at a time.
+
+You taught us logic, patience, and the very important skill of not throwing the keyboard when the code says "error" for the hundredth time. You taught us that a missing semicolon can ruin a whole afternoon, and that it is okay to be stuck, because being stuck is just the stage before figuring it out.
+
+Thank you for making technology feel creative instead of scary. Thank you for every debugging session, every explanation you repeated without sighing, and every time you believed in a program that did not even run yet.
+
+You are the best code we ever learned from, and we promise to keep committing good things.
+
+Happy Teacher's Day!` },
+    { id:'math', keys:['mathematics','maths'], label:'Mathematics', icon:'∑', bg:'grid',
+      glyphs:['+','−','×','÷','=','π','√','∑','123','x²','∞','Δ','7','42','y=mx+c','∫'],
+      msg:`Dear {name},
+
+Some people say Mathematics is hard. You made it feel like a puzzle that was always possible to solve, as long as we did not give up halfway. Every time a question looked impossible, you said "just take it step by step", and somehow the answer was waiting at the end.
+
+You were patient when we forgot the formula for the fifth time, and you explained it again like it was the first. You taught us that mistakes are not failures, they are just wrong turns on the way to the right answer, and that a neat solution is a small victory worth being proud of.
+
+Because of you, numbers do not scare us anymore. Because of you, we learned that difficult concepts can be broken into simple pieces, and that confidence grows every time we get one more question right.
+
+Thank you for believing that every one of us could solve it, even when we did not believe it ourselves. You will always be the one person in our lives who truly makes everything add up.
+
+Happy Teacher's Day!` },
+    { id:'bio', keys:['biology'], label:'Biology', icon:'🧬', bg:'dots',
+      glyphs:['🧬','🔬','DNA','⬡','🧫','🌿','⚛','🦠','ATGC','🫀','◎','🍃'],
+      msg:`Dear {name},
+
+You didn't just teach us Biology; you helped us understand the amazing world of life. Before your class, a cell was just a drawing in a book. After your class, we understood that every living thing, from the tiniest bacteria to the tallest tree, is a small miracle working quietly all the time.
+
+Thank you for making every lesson interesting, meaningful, and memorable. Thank you for drawing diagrams with so much patience, for answering our "but why?" questions with real excitement, and for never making us feel silly for being curious.
+
+You helped us look at the world with new eyes. Now we notice the plants, the insects, our own heartbeat, and we think, "that is amazing, and Miss taught me why". That is the kind of learning that stays with us for life.
+
+We are grateful for your effort, your kindness, and the way you made science feel alive. You are one of the reasons we love discovering.
+
+Happy Teacher's Day!` },
+    { id:'chem', keys:['chemistry'], label:'Chemistry', icon:'⚗', bg:'dots',
+      glyphs:['H₂O','⚗','🧪','NaCl','CO₂','⬡','Fe','Au','C₆H₆','O₂','→','H⁺','Na','Cl⁻'],
+      msg:`Dear {name},
+
+I have a small confession, and I hope you will take it kindly: Chemistry and I are not exactly best friends. I would politely say we have a "complicated relationship", like two atoms that refuse to bond. No offence at all, because the problem was never you.
+
+In fact, you are the reason I survived it. You made formulas feel less like secret codes from another planet, and you tried so hard to make equations balance, even when my brain refused to. I am still proud that I remember H2O. Please give me some credit for that.
+
+Every time a test paper arrived, my only successful reaction was panic, but you kept calm, kept explaining, and kept believing that one day it would click. Honestly, you might be the only catalyst in the world who speeds up learning for a student who did not want to react at all.
+
+So thank you for your patience, your humour, and your hard work. You are proof that a great teacher can make even a subject we are scared of a little bit bearable.
+
+Happy Teacher's Day! You are definitely the most valuable element in our lab.` },
+    { id:'phy', keys:['physics'], label:'Physics', icon:'⚛', bg:'grid',
+      glyphs:['E=mc²','F=ma','⚛','🪐','v=u+at','λ','Ω','∆x','ħ','🌌','g','c','☄'],
+      msg:`Dear {name},
+
+You helped us see how the world really works. Before your class, an apple falling from a tree was just an apple falling from a tree. After your class, it was gravity, force, and motion, all happening quietly in front of us every single day.
+
+Thank you for turning invisible things like energy, waves, and forces into ideas we could imagine and understand. Thank you for the numerical questions you explained patiently, for every diagram you drew on the board, and for answering questions about space and planets even when they were not in the syllabus.
+
+You taught us that the universe follows rules, and that we can discover those rules if we stay curious and keep asking questions. You taught us that even big things like stars and tiny things like atoms are connected by the same beautiful laws.
+
+Because of you, we look up at the sky differently now. You set our curiosity in motion, and it still has not stopped.
+
+Happy Teacher's Day!` },
+    { id:'urdu', keys:['urdu'], label:'Urdu', icon:'ا', bg:'ruled',
+      glyphs:['ا','ب','پ','ت','ج','چ','د','ر','س','ش','ک','گ','ل','م','ن','ی','قلم','کتاب','۞'],
+      tag:'شکریہ، استاد',
+      msg:`Dear {name},
+
+You gave us far more than words on a page. You gave us the beauty of a language, the sweetness of poetry, and the confidence to express what is in our hearts. Every Urdu class felt calm, graceful, and full of meaning.
+
+Thank you for teaching us how to read a verse slowly, how to feel its meaning, and how to write with respect for every single word. Thank you for correcting our mistakes gently, for telling us the stories behind the great poets, and for teaching us that our language is something to be proud of.
+
+Because of you, Urdu is not just a subject for us. It is part of our culture, our identity, and our way of speaking with warmth. We carry a little of your elegance every time we write a line.
+
+Your effort, your patience, and your kindness will always be remembered with deep respect and love.
+
+شکریہ، استاد۔ Happy Teacher's Day!` },
+    { id:'english', keys:['english'], label:'English', icon:'“ ”', bg:'ruled',
+      glyphs:['“','”','Aa','📖','✒','Once upon…','Dear,','Write.','?','!',';','Read','Chapter'],
+      msg:`Dear {name},
+
+You taught us that words have power. Before your class, many of us were afraid to speak, afraid to write, and afraid of making mistakes in front of everyone. You made the classroom feel safe enough to try, and that changed everything.
+
+Thank you for teaching us how to put our thoughts into proper sentences, how to read between the lines, and how to find our own voice. Thank you for every essay you checked, every comment you wrote in the margin, and every time you told us that our idea was worth sharing.
+
+You showed us that language is not only about grammar and vocabulary. It is about confidence, communication, and creativity, and about being able to say what we truly mean. Because of you, we are not scared of a blank page anymore.
+
+Every sentence we write carries a little bit of you in it. Thank you for being the best chapter of our school story.
+
+Happy Teacher's Day!` },
+    { id:'pakstudies', keys:['pakistan studies','social studies'], label:'Pakistan Studies / Social Studies', icon:'🗺', bg:'map',
+      glyphs:['🗺','1947','📜','🕌','🧭','⏳','1940','🏛','Lahore','Indus','⭐','☾'],
+      msg:`Dear {name},
+
+You helped us understand where we come from and who we are. Before your class, history felt like a long list of dates and names. After your class, it felt like a story of real people, real sacrifices, and real dreams, and we were a part of that story.
+
+Thank you for bringing the past to life, from the freedom struggle to the leaders who shaped our country. Thank you for teaching us geography, culture, and civics in a way that made us curious instead of bored, and for reminding us again and again that knowing our past helps us build a better future.
+
+You taught us to be proud of our identity, to respect our heritage, and to learn from the mistakes of history instead of repeating them. You taught us that being a good citizen begins with knowledge, honesty, and care for others.
+
+We are grateful for your hard work, your patience, and your belief in us. You gave us roots, and we will always be thankful.
+
+Happy Teacher's Day!` },
+    { id:'islamiat', keys:['islamiat','islamic studies'], label:'Islamiat', icon:'۞', bg:'islamic',
+      glyphs:['۞','✦','❖','📖','🕌','✧','◈','☾','⬡'],
+      msg:`Dear {name},
+
+Thank you for teaching us with kindness, patience, and sincerity. You did not just give us lessons; you gave us guidance for life. Through your words, we learned about honesty, respect, gratitude, and treating everyone with compassion.
+
+Thank you for explaining things gently and for always being patient with our questions. Thank you for reminding us that good character matters more than good marks, and that a kind word can be a charity. Your calm nature and good manners taught us more than any book could.
+
+Because of you, we understand our values better and we try to carry them in our daily lives, in how we speak, how we behave, and how we treat our parents, our friends, and strangers.
+
+May Allah reward you for every effort, every moment of patience, and every heart you have guided. You will always be remembered with respect and gratitude.
+
+Happy Teacher's Day!` },
+    { id:'history', keys:['history'], label:'History', icon:'📜', bg:'map',
+      glyphs:['📜','🏛','⏳','1857','1492','🗿','⚔','📯','🏰','Timeline','Era','BC'],
+      msg:`Dear {name},
+
+You made the past feel alive. Before your class, history was just a pile of dates, kings, and wars that were difficult to remember. After your class, every event had a reason, every person had a story, and everything connected like pieces of a very big puzzle.
+
+Thank you for telling us the stories behind the events, and for teaching us to ask why things happened, not just when. Thank you for making timelines exciting, for sharing little interesting facts that no book had, and for showing us how decisions made hundreds of years ago still affect our world today.
+
+You taught us that learning from the past is the best way to understand the present and to build a wiser future. You taught us to think, question, and judge carefully instead of simply memorising.
+
+Your lessons will stay with us long after we forget the dates. Thank you for being a part of the most important chapter of our lives.
+
+Happy Teacher's Day!` },
+    { id:'geo', keys:['geography'], label:'Geography', icon:'🌍', bg:'map',
+      glyphs:['🌍','🧭','🗺','⛰','N','27°N','Equator','📍','🏔','Lat/Long','🌐','E'],
+      msg:`Dear {name},
+
+You opened the whole world to us from inside a classroom. With a map, a globe, and your stories, we travelled to mountains, rivers, deserts, and oceans without ever leaving our seats.
+
+Thank you for teaching us how to read maps, how to understand weather and land, and how people everywhere live in different ways because of the places they call home. Thank you for making us curious about faraway countries, and for helping us appreciate the beauty of our own.
+
+You taught us that the world is connected, and that taking care of our planet is something every one of us must do. You taught us that knowing where we are helps us decide where we want to go.
+
+You always gave us direction, in our studies and in life. Our compass will always point toward your kindness.
+
+Happy Teacher's Day!` }
+  ];
+  const DEFAULT = { id:'default', label:'', icon:'📚', bg:'dots',
+    glyphs:['📚','★','✦','🎓','✏','💡','☆','A+','🍎','✧','📖'],
+    msg:`Dear {name},
+
+You have taught us far more than lessons from a book. You taught us how to think, how to ask questions, and how to keep trying even when things felt difficult. Every day in your class, you gave your time, your patience, and your energy to help us grow.
+
+Thank you for staying calm when we were noisy, for explaining again when we did not understand, and for encouraging us when we doubted ourselves. Thank you for celebrating our small wins and for guiding us gently through our mistakes.
+
+You are not just a teacher to us. You are someone who shaped the way we see ourselves and the world. A lot of what we are learning to become began with something you said or did in class.
+
+We may not say it enough, but we truly appreciate everything you do. We will always remember you with love and respect.
+
+Happy Teacher's Day!` };
+
+  /* ---------- Elements ---------- */
+  const $ = id => document.getElementById(id);
+  const screens = { boot:$('boot'), input:$('input'), result:$('result') };
+  const field = $('teacherInput'), errorEl = $('error');
+  let typingToken = 0;
+
+  const show = name => {
+    Object.entries(screens).forEach(([k, el]) => el.classList.toggle('active', k === name));
+  };
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  /* ---------- 1. Boot animation ---------- */
+  async function boot() {
+    const lines = ["Initializing Teacher's Day...", 'Loading memories...', 'Loading gratitude...', 'Teacher Appreciation System: READY ✓'];
+    const out = $('bootText');
+    let done = '';
+    for (const line of lines) {
+      for (let i = 1; i <= line.length; i++) {
+        out.innerHTML = done + line.slice(0, i) + '<span class="cursor"></span>';
+        await wait(28);
+      }
+      done += line + '\n';
+      out.innerHTML = done + '<span class="cursor"></span>';
+      await wait(380);
+    }
+    await wait(700);
+    show('input');
+    field.focus();
+  }
+
+  /* ---------- Helpers ---------- */
+  const titleCase = s => s.toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase());
+
+  function detect(subjectRaw) {
+    const s = subjectRaw.toLowerCase().replace(/\s+/g, ' ').trim();
+    return SUBJECTS.find(sub => sub.keys.some(k => s.includes(k))) || DEFAULT;
+  }
+
+  function spawnFloaters(glyphs) {
+    const box = $('floaters');
+    box.innerHTML = '';
+    const count = window.innerWidth < 600 ? 18 : 32;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'floater';
+      el.textContent = glyphs[i % glyphs.length];
+      el.style.left = Math.random() * 96 + '%';
+      el.style.fontSize = (16 + Math.random() * 34) + 'px';
+      el.style.animationDuration = (14 + Math.random() * 16) + 's';
+      el.style.animationDelay = (-Math.random() * 28) + 's';
+      el.style.setProperty('--rot', (Math.random() * 80 - 40) + 'deg');
+      box.appendChild(el);
+    }
+  }
+
+  async function typeMessage(text) {
+    const token = ++typingToken;
+    const el = $('message');
+    el.textContent = '';
+    el.classList.add('typing');
+    for (let i = 0; i < text.length; i++) {
+      if (token !== typingToken) return;
+      el.textContent += text[i];
+      await wait(text[i] === '\n' ? 180 : 22);
+    }
+    el.classList.remove('typing');
+    $('closing').classList.add('show');
+  }
+
+
+  /* ---------- Party poppers ---------- */
+  const cv = $('confetti'), cx = cv.getContext('2d');
+  function popper() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    cv.width = innerWidth; cv.height = innerHeight;
+    const cols = ['#f0c674', '#ffffff', '#e0a43a', '#ff8a73', '#d7dde0'];
+    const ps = [];
+    const burst = () => {
+      for (let side = 0; side < 2; side++) for (let i = 0; i < 80; i++) {
+        ps.push({ x: side ? cv.width : 0, y: cv.height,
+          vx: (side ? -1 : 1) * (3 + Math.random() * 11), vy: -(9 + Math.random() * 14),
+          w: 6 + Math.random() * 7, h: 4 + Math.random() * 6, r: Math.random() * 6,
+          vr: Math.random() * .4 - .2, c: cols[(Math.random() * cols.length) | 0], life: 0 });
+      }
+    };
+    burst(); setTimeout(burst, 700); setTimeout(burst, 1500);
+    const t0 = performance.now();
+    (function frame(now) {
+      cx.clearRect(0, 0, cv.width, cv.height);
+      ps.forEach(p => {
+        p.vy += .32; p.vx *= .992; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
+        cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+        cx.fillStyle = p.c; cx.globalAlpha = Math.max(0, 1 - p.life / 260);
+        cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
+      });
+      if (now - t0 < 6500) requestAnimationFrame(frame); else cx.clearRect(0, 0, cv.width, cv.height);
+    })(t0);
+  }
+
+  /* ---------- 2 & 4. Submit ---------- */
+  function submit() {
+    const value = field.value.trim();
+    const idx = value.indexOf(',');
+    const rawName = idx > -1 ? value.slice(0, idx).trim() : '';
+    const rawSubject = idx > -1 ? value.slice(idx + 1).trim() : '';
+    if (!rawName || !rawSubject) {
+      errorEl.textContent = 'Please type the name, a comma, then the full subject. Example: MISS HINA, BIOLOGY';
+      field.focus();
+      return;
+    }
+    errorEl.textContent = '';
+
+    const name = titleCase(rawName);
+    const subject = detect(rawSubject);
+    document.body.dataset.theme = subject.id;
+    document.body.dataset.bg = subject.bg;
+
+    $('emblem').textContent = subject.icon;
+    $('subjectTag').textContent = subject.tag || (subject.label ? `${subject.label} · Teacher's Day` : "Teacher's Day");
+    $('greeting').textContent = `Happy Teacher's Day, ${name}!`;
+    $('closing').classList.remove('show');
+    $('message').textContent = '';
+
+    spawnFloaters(subject.glyphs);
+    show('result');
+    popper();
+    document.querySelector('#result').scrollTop = 0;
+    setTimeout(() => typeMessage(subject.msg.replace(/\{name\}/g, name) + '\n\nWith love and gratitude,\nYour student, Hurain'), 700);
+  }
+
+  $('enterBtn').addEventListener('click', submit);
+  field.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+
+  /* ---------- 8. Reset ---------- */
+  $('againBtn').addEventListener('click', () => {
+    typingToken++;
+    field.value = '';
+    errorEl.textContent = '';
+    document.body.dataset.theme = 'default';
+    document.body.dataset.bg = '';
+    spawnFloaters(DEFAULT.glyphs);
+    show('input');
+    field.focus();
+  });
+
+  spawnFloaters(DEFAULT.glyphs);
+  boot();
+})();
+
+</script>
+</body>
+</html>
